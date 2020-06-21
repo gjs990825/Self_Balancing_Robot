@@ -1,0 +1,26 @@
+--cpu Cortex-M3
+".\objects\startup_stm32f103xb.o"
+".\objects\main.o"
+".\objects\bsp.o"
+".\objects\led.o"
+".\objects\debug.o"
+".\objects\stm32f1xx_it.o"
+".\objects\stm32f1xx_hal_msp.o"
+".\objects\stm32f1xx_hal.o"
+".\objects\stm32f1xx_hal_cortex.o"
+".\objects\stm32f1xx_hal_dma.o"
+".\objects\stm32f1xx_hal_exti.o"
+".\objects\stm32f1xx_hal_flash.o"
+".\objects\stm32f1xx_hal_flash_ex.o"
+".\objects\stm32f1xx_hal_gpio.o"
+".\objects\stm32f1xx_hal_gpio_ex.o"
+".\objects\stm32f1xx_hal_pwr.o"
+".\objects\stm32f1xx_hal_rcc.o"
+".\objects\stm32f1xx_hal_rcc_ex.o"
+".\objects\stm32f1xx_hal_tim.o"
+".\objects\stm32f1xx_hal_tim_ex.o"
+".\objects\system_stm32f1xx.o"
+--strict --scatter ".\Objects\Self_Balancing_Robot.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\Listings\Self_Balancing_Robot.map" -o .\Objects\Self_Balancing_Robot.axf
