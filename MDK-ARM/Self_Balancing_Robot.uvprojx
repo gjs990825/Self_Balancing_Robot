@@ -422,6 +422,21 @@
               <FileType>1</FileType>
               <FilePath>..\Core\Src\stm32f1xx_hal_msp.c</FilePath>
             </File>
+            <File>
+              <FileName>retarget.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\retarget.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\motor.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -711,11 +726,6 @@
               <FileName>stm32f1xx_ll_usb.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_ll_usb.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f1xx_ll_utils.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_ll_utils.c</FilePath>
             </File>
           </Files>
         </Group>

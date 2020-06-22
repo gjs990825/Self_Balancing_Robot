@@ -6,6 +6,9 @@
 ".\objects\debug.o"
 ".\objects\stm32f1xx_it.o"
 ".\objects\stm32f1xx_hal_msp.o"
+".\objects\retarget.o"
+".\objects\uart.o"
+".\objects\motor.o"
 ".\objects\stm32f1xx_hal.o"
 ".\objects\stm32f1xx_hal_adc.o"
 ".\objects\stm32f1xx_hal_adc_ex.o"
@@ -63,7 +66,6 @@
 ".\objects\stm32f1xx_ll_tim.o"
 ".\objects\stm32f1xx_ll_usart.o"
 ".\objects\stm32f1xx_ll_usb.o"
-".\objects\stm32f1xx_ll_utils.o"
 ".\objects\system_stm32f1xx.o"
 --strict --scatter ".\Objects\Self_Balancing_Robot.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
