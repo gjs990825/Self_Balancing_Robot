@@ -21,43 +21,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-/* USER CODE BEGIN Includes */
 
-/* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN TD */
-
-/* USER CODE END TD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN Define */
- 
-/* USER CODE END Define */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN Macro */
-
-/* USER CODE END Macro */
-
-/* Private variables ---------------------------------------------------------*/
-/* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
-/* USER CODE BEGIN PFP */
-
-/* USER CODE END PFP */
-
-/* External functions --------------------------------------------------------*/
-/* USER CODE BEGIN ExternalFunctions */
-
-/* USER CODE END ExternalFunctions */
-
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
 /**
   * Initializes the Global MSP.
   */
@@ -81,8 +45,34 @@ void HAL_MspInit(void)
   /* USER CODE END MspInit 1 */
 }
 
-/* USER CODE BEGIN 1 */
+void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
+{
+  if (huart->Instance == USART1)
+  {
+    __HAL_RCC_USART1_CLK_DISABLE();
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_9 | GPIO_PIN_10);
+  }
+}
 
-/* USER CODE END 1 */
+void HAL_UART_MspInit(UART_HandleTypeDef *huart)
+{
+  if (huart->Instance == USART1)
+  {
+    __HAL_RCC_USART1_CLK_ENABLE();
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+    // GPIO Init
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    GPIO_InitTypeDef GI;
+
+    GI.Speed = GPIO_SPEED_FREQ_HIGH;
+    // PA9 TX
+    GI.Mode = GPIO_MODE_AF_PP;
+    GI.Pin = GPIO_PIN_9;
+    HAL_GPIO_Init(GPIOA, &GI);
+    // PA10 RX
+    GI.Mode = GPIO_MODE_AF_INPUT;
+    GI.Pin = GPIO_PIN_10;
+    GI.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GI);
+  }
+}
