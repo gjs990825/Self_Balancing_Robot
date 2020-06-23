@@ -5,7 +5,7 @@
 
 extern UART_HandleTypeDef UartHandle;
 
-void USART1_UART_Init(void);
+void USART1_UARTInit(void);
 char UART_read(void);
 void UART_write(char);
 

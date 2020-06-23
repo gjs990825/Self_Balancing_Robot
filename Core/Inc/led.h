@@ -4,7 +4,7 @@
 #include "stm32f1xx_hal.h"
 #include <stdbool.h>
 
-void LED_GPIO_Init(void);
+void LED_GPIOInit(void);
 void LED_Toggle(void);
 void LED_Set(bool state);
 

@@ -3,7 +3,7 @@
 
 UART_HandleTypeDef UartHandle;
 
-void USART1_UART_Init(void)
+void USART1_UARTInit(void)
 {
     // UART Init
     UartHandle.Instance = USART1;

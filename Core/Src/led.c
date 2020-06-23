@@ -6,7 +6,7 @@
 #define LED0_GPIO_Port GPIOC
 #define LED0_CLK_ENABLE __HAL_RCC_GPIOC_CLK_ENABLE
 
-void LED_GPIO_Init(void)
+void LED_GPIOInit(void)
 {
     GPIO_InitTypeDef GPIO_InitStruct;
 

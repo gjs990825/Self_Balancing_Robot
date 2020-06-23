@@ -5,24 +5,31 @@
 #include "uart.h"
 #include <stdio.h>
 
-
 int main(void)
 {
     BSP_Config();
-    LED_GPIO_Init();
-    USART1_UART_Init();
 
+    LED_GPIOInit();
+    USART1_UARTInit();
     Motor_Init();
 
-    bool dir = 0;
-
+    bool dir = 1;
+    int16_t t_speed;
     while (1)
     {
-        LED_Toggle();
-        Motor_Go(dir);
-        printf((dir ? "go\r\n" : "back\r\n"));
+        for (int16_t j = 0; j < 2; j++)
+        {
+            for (uint16_t i = 0; i < 100; i++)
+            {
+                dir ? t_speed++ : t_speed--;
+                Motor_Control(t_speed, 0);
+                HAL_Delay(10);
+            }
+            dir = !dir;
+        }
         dir = !dir;
 
-        HAL_Delay(2000);
+        LED_Toggle();
+        // HAL_Delay(500);
     }
 }
