@@ -1,6 +1,13 @@
 #include "mpu6050.h"
 #include "debug.h"
 
+const int16_t kMPU6050AccelYOffset = 879; // 878.71
+const int16_t kMPU6050GyroXOffset = -64; // -63.46f
+
+#define _MPU6050_ACCEL_Y_OFFSET_ 0
+#define _MPU6050_GYRO_X_OFFSET_ 0
+
+
 // MPU6050, 硬件I2c地址 0x68，模拟i2c地址0xD0   AD0高电平时地址为0x69 模拟IIC地址0xD2
 #define MPU6050_ADDRESS 0xD0 // 0x69
 
@@ -199,10 +206,10 @@ int16_t MPU6050_GetData(uint8_t addr)
 
 int16_t MPU6050_GetGyroX(void)
 {
-    return MPU6050_GetData(MPU_RA_GYRO_XOUT_H);
+    return MPU6050_GetData(MPU_RA_GYRO_XOUT_H) - kMPU6050GyroXOffset;
 }
 
 int16_t MPU6050_GetAccelY(void)
 {
-    return MPU6050_GetData(MPU_RA_ACCEL_YOUT_H);
+    return MPU6050_GetData(MPU_RA_ACCEL_YOUT_H) - kMPU6050AccelYOffset;
 }

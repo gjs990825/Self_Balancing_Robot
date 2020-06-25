@@ -9,7 +9,7 @@ void MPU6050_Init(void);
 void MPU6050_IICConfig(void);
 bool MPU6050_Check(void);
 
-
+// MPU6050 data collection
 int16_t MPU6050_GetData(uint8_t addr);
 int16_t MPU6050_GetGyroX(void);
 int16_t MPU6050_GetAccelY(void);
