@@ -8,6 +8,7 @@
 
 // Motor basic direction control
 void Motor_Init(void);
+void Motor_GPIOInit(void);
 void Motor_ControlLeftMotor(int16_t speed);
 void Motor_ControlRightMotor(int16_t speed);
 

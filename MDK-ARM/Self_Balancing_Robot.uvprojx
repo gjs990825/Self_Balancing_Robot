@@ -437,6 +437,11 @@
               <FileType>1</FileType>
               <FilePath>..\Core\Src\motor.c</FilePath>
             </File>
+            <File>
+              <FileName>mpu6050.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\mpu6050.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -4,23 +4,25 @@
 #include "motor.h"
 #include "uart.h"
 #include <stdio.h>
+#include "mpu6050.h"
 
 
 int main(void)
 {
     BSP_Config();
-
-    LED_GPIOInit();
     USART1_UARTInit();
+    LED_GPIOInit();
     Motor_Init();
 
-    Motor_EncoderInit();
+    MPU6050_Init();
 
-    bool dir = 1;
-    int16_t t_speed;
+    printf("\r\nSystem Setup OK\r\n");
+
+    // bool dir = 1;
+    // int16_t t_speed;
     while (1)
     {
-        // // test PWM 
+        // // test PWM
         // for (int16_t j = 0; j < 2; j++)
         // {
         //     for (uint16_t i = 0; i < 100; i++)
@@ -34,7 +36,8 @@ int main(void)
         // dir = !dir;
 
         LED_Toggle();
-        printf("Encoder: L:%5d\tR:%5d\r\n", Motor_EncoderReadLeft(), Motor_EncoderReadRight());
-        HAL_Delay(500);
+        // printf("Encoder: L:%5d\tR:%5d\r\n", Motor_EncoderReadLeft(), Motor_EncoderReadRight());
+        printf("Gyro_X:%5d\tAccel_Y:%5d\r\n", MPU6050_GetGyroX(), MPU6050_GetAccelY());
+        HAL_Delay(100);
     }
 }

@@ -25,6 +25,16 @@ int16_t turnning_speed_ = 0;
 
 void Motor_Init(void)
 {
+    Motor_GPIOInit();
+    Motor_PWMConfiguration();
+    Motor_EncoderInit();
+
+    // Stop motor
+    Motor_Control(0, 0);
+}
+
+void Motor_GPIOInit(void)
+{
     GPIO_InitTypeDef GPIO_InitStructure;
 
     MOTOR_L_CTLA_CLKEN();
@@ -43,11 +53,6 @@ void Motor_Init(void)
     HAL_GPIO_Init(MOTOR_R_CTLA_PORT, &GPIO_InitStructure);
     GPIO_InitStructure.Pin = MOTOR_R_CTLB_PIN;
     HAL_GPIO_Init(MOTOR_R_CTLB_PORT, &GPIO_InitStructure);
-
-    Motor_PWMConfiguration();
-
-    // Stop motor
-    Motor_Control(0, 0);
 }
 
 void Motor_ControlLeftMotor(int16_t speed)
@@ -124,7 +129,6 @@ void Motor_Control(int16_t base_speed, int16_t turnning_speed)
 
 int16_t Motor_GetBaseSpeed(void) { return base_speed_; }
 int16_t Motor_GetTurnningSpeed(void) { return turnning_speed_; }
-
 
 TIM_HandleTypeDef TIM4_Handle;
 TIM_HandleTypeDef TIM2_Handle;
