@@ -2,6 +2,7 @@
 #define _UTILS_H_
 
 #include "stm32f1xx_hal.h"
+#include <stdbool.h>
 
 #define GET_ARRAY_LENGEH(array) (sizeof(array) / sizeof(array[0]))
 

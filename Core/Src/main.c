@@ -5,7 +5,9 @@
 #include "uart.h"
 #include <stdio.h>
 #include "mpu6050.h"
-
+#include <stdlib.h>
+#include <math.h>
+#include "utils.h"
 
 int main(void)
 {
@@ -14,9 +16,12 @@ int main(void)
     LED_GPIOInit();
     Motor_Init();
 
+    // Wait for MPU6050 to start up
+    HAL_Delay(300);
     MPU6050_Init();
 
     printf("\r\nSystem Setup OK\r\n");
+
 
     // bool dir = 1;
     // int16_t t_speed;
@@ -36,8 +41,8 @@ int main(void)
         // dir = !dir;
 
         LED_Toggle();
+        HAL_Delay(5);
+        Movement_Balance();
         // printf("Encoder: L:%5d\tR:%5d\r\n", Motor_EncoderReadLeft(), Motor_EncoderReadRight());
-        printf("Gyro_X:%5d\tAccel_Y:%5d\r\n", MPU6050_GetGyroX(), MPU6050_GetAccelY());
-        HAL_Delay(100);
     }
 }

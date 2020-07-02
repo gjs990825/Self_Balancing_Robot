@@ -35,7 +35,7 @@ void Motor_Init(void)
 
 void Motor_GPIOInit(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitTypeDef GPIO_InitStructure = {0};
 
     MOTOR_L_CTLA_CLKEN();
     MOTOR_L_CTLB_CLKEN();
@@ -83,9 +83,9 @@ void Motor_ControlRightMotor(int16_t speed)
 
 void Motor_PWMConfiguration(void)
 {
-    // TIM1 CH1-PA8, CH4-PA11, 10KHz, Fill range from 0 to 99.
-    GPIO_InitTypeDef GPIO_InitStructure;
-    TIM_OC_InitTypeDef TIM_OCInitStructure;
+    // TIM1 CH1-PA8, CH4-PA11, 15KHz, Fill range from 0 to 99.
+    GPIO_InitTypeDef GPIO_InitStructure = {0};
+    TIM_OC_InitTypeDef TIM_OCInitStructure = {0};
 
     __HAL_RCC_TIM1_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -97,7 +97,7 @@ void Motor_PWMConfiguration(void)
     HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     TIM1_Handle.Instance = TIM1;
-    TIM1_Handle.Init.Prescaler = 72 - 1;
+    TIM1_Handle.Init.Prescaler = 48 - 1;
     TIM1_Handle.Init.Period = _MOTOR_PWM_MAX_ - 1;
     TIM1_Handle.Init.CounterMode = TIM_COUNTERMODE_UP;
     TIM1_Handle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -135,8 +135,8 @@ TIM_HandleTypeDef TIM2_Handle;
 
 void Motor_EncoderInit(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
-    TIM_Encoder_InitTypeDef TIM_EncoderInitStructure;
+    GPIO_InitTypeDef GPIO_InitStructure = {0};
+    TIM_Encoder_InitTypeDef TIM_EncoderInitStructure = {0};
 
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_TIM4_CLK_ENABLE();
@@ -203,10 +203,14 @@ void Motor_EncoderInit(void)
 int16_t Motor_EncoderReadLeft(void)
 {
     // this side need to reverse sign to fit the real direction
-    return -(int16_t)__HAL_TIM_GET_COUNTER(&TIM4_Handle);
+    int16_t val = -(int16_t)__HAL_TIM_GET_COUNTER(&TIM4_Handle);
+    __HAL_TIM_SET_COUNTER(&TIM4_Handle, 0);
+    return val;
 }
 
 int16_t Motor_EncoderReadRight(void)
 {
-    return (int16_t)__HAL_TIM_GET_COUNTER(&TIM2_Handle);
+    int16_t val = (int16_t)__HAL_TIM_GET_COUNTER(&TIM2_Handle);
+    __HAL_TIM_SET_COUNTER(&TIM2_Handle, 0);
+    return val;
 }
