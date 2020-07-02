@@ -102,7 +102,34 @@ static inline int reg_int_cb(struct int_param_s *int_param)
 #define labs        abs
 #define fabs(x)     (((x)>0)?(x):-(x))
 #else
-#error  Gyro driver is missing the system layer implementations.
+
+#include "stm32f1xx_hal.h"
+#include "mpu6050.h"
+
+#define delay_ms HAL_Delay
+#define get_ms(x) (*x) = HAL_GetTick()
+
+extern int i2c_write(unsigned char slave_addr, unsigned char reg_addr,
+     unsigned char length, unsigned char const *data);
+extern int i2c_read(unsigned char slave_addr, unsigned char reg_addr,
+     unsigned char length, unsigned char *data);
+
+void reg_int_cb(struct int_param_s *int_param)
+{
+    // do nothing
+}
+
+#define labs        abs
+#define fabs(x)     (((x)>0)?(x):-(x))
+#define log_i printf
+#define log_e printf
+
+int min(int a, int b)
+{
+    return (a > b) ? b : a;
+}
+
+// #error  Gyro driver is missing the system layer implementations.
 #endif
 
 #if !defined MPU6050 && !defined MPU9150 && !defined MPU6500 && !defined MPU9250
@@ -488,7 +515,7 @@ const struct gyro_reg_s reg = {
 #endif
 };
 const struct hw_s hw = {
-    .addr           = 0x68,
+    .addr           = 0xD0, // = 0x68,
     .max_fifo       = 1024,
     .num_reg        = 118,
     .temp_sens      = 340,

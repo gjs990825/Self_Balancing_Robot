@@ -9,6 +9,9 @@
 #include <math.h>
 #include "utils.h"
 
+#include "inv_mpu.h"
+#include "inv_mpu_dmp_motion_driver.h"
+
 int main(void)
 {
     BSP_Config();
@@ -19,6 +22,8 @@ int main(void)
     // Wait for MPU6050 to start up
     HAL_Delay(300);
     MPU6050_Init();
+    MPU6050_DMPInit();
+    MPU6050_EXTIInit();
 
     printf("\r\nSystem Setup OK\r\n");
 
@@ -40,9 +45,8 @@ int main(void)
         // }
         // dir = !dir;
 
-        LED_Toggle();
+        // LED_Toggle();
         HAL_Delay(5);
-        Movement_Balance();
         // printf("Encoder: L:%5d\tR:%5d\r\n", Motor_EncoderReadLeft(), Motor_EncoderReadRight());
     }
 }

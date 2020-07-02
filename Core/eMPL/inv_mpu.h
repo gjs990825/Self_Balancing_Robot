@@ -38,6 +38,8 @@ struct int_param_s {
     unsigned long pin;
     void (*cb)(volatile void*);
     void *arg;
+#else
+	unsigned long pin;
 #endif
 };
 

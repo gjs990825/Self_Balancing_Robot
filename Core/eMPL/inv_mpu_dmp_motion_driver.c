@@ -63,7 +63,21 @@
 #define log_e       MPL_LOGE
 
 #else
-#error  Gyro driver is missing the system layer implementations.
+
+#include "stm32f1xx_hal.h"
+#include "mpu6050.h"
+
+#define delay_ms HAL_Delay
+#define get_ms(x) (*x) = HAL_GetTick()
+
+extern int i2c_write(unsigned char slave_addr, unsigned char reg_addr,
+     unsigned char length, unsigned char const *data);
+extern int i2c_read(unsigned char slave_addr, unsigned char reg_addr,
+     unsigned char length, unsigned char *data);
+
+void __no_operation(void) { }
+
+// #error  Gyro driver is missing the system layer implementations.
 #endif
 
 /* These defines are copied from dmpDefaultMPU6050.c in the general MPL
