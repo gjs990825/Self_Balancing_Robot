@@ -6,11 +6,12 @@
 #include "inv_mpu.h"
 #include "inv_mpu_dmp_motion_driver.h"
 #include "led.h"
+#include "motor.h"
+#include "utils.h"
+#include <stdlib.h>
 
 const float kMPU6050AngleYZOffset = 2.34f;
 const float kMPU6050GyroXOffset = -63.46f;
-
-float Pitch, Roll;
 
 I2C_HandleTypeDef I2C1_Handle;
 
@@ -219,12 +220,6 @@ void MPU6050_DMPInit(void)
     }
 }
 
-void MPU6050_EXTICallBack(void)
-{
-    MPU6050_ReadDMP();
-    printf("Pitch:%5f\t Roll:%5f\t\t\n", Pitch, Roll);
-}
-
 EXTI_HandleTypeDef EXTI_A1HandleStruct;
 
 void MPU6050_EXTIInit(void)
@@ -255,24 +250,134 @@ void EXTI1_IRQHandler(void)
     HAL_EXTI_IRQHandler(&EXTI_A1HandleStruct);
 }
 
+typedef struct Quaternion
+{
+    double w, x, y, z;
+} Quaternion_t;
+
+typedef struct EulerAngles
+{
+    double roll, pitch, yaw;
+} EulerAngles_t;
+
+EulerAngles_t ToEulerAngles(Quaternion_t q)
+{
+    EulerAngles_t angles;
+
+    // roll (x-axis rotation)
+    double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+    double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+    angles.roll = atan2(sinr_cosp, cosr_cosp);
+
+    // pitch (y-axis rotation)
+    double sinp = 2 * (q.w * q.y - q.z * q.x);
+    if (fabs(sinp) >= 1)
+        angles.pitch = copysign(PI / 2, sinp); // use 90 degrees if out of range
+    else
+        angles.pitch = asin(sinp);
+
+    // yaw (z-axis rotation)
+    double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+    double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+    angles.yaw = atan2(siny_cosp, cosy_cosp);
+
+    return angles;
+}
+
+float angle_balance, gyro_balance;
+
 void MPU6050_ReadDMP(void)
 {
 #define q30 1073741824.0f
 
-    float q0, q1, q2, q3;
+    Quaternion_t _quat;
     short gyro[3], accel[3], sensors;
     unsigned long sensor_timestamp;
     unsigned char more;
     long quat[4];
 
     dmp_read_fifo(gyro, accel, quat, &sensor_timestamp, &sensors, &more);
+
     if (sensors & INV_WXYZ_QUAT)
     {
-        q0 = quat[0] / q30;
-        q1 = quat[1] / q30;
-        q2 = quat[2] / q30;
-        q3 = quat[3] / q30;
-        Pitch = asin(-2 * q1 * q3 + 2 * q0 * q2) * RAD_TO_DEG;
-        Roll = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2 * q2 + 1) * RAD_TO_DEG;
+        _quat.w = quat[0] / q30;
+        _quat.x = quat[1] / q30;
+        _quat.y = quat[2] / q30;
+        _quat.z = quat[3] / q30;
+
+        EulerAngles_t angles = ToEulerAngles(_quat);
+
+        // printf("Roll:%5.1f\tPitch:%5.1f\tYaw:%5.1f\t\r\n",
+        //        angles.roll * RAD_TO_DEG,
+        //        angles.pitch * RAD_TO_DEG,
+        //        angles.yaw * RAD_TO_DEG);
+
+        angle_balance = -angles.roll * RAD_TO_DEG;
+        gyro_balance = -gyro[0];
     }
+}
+
+// void MPU6050_GetAngle(void)
+// {
+//     MPU6050_ReadDMP();
+//     angle_balance = Pitch;
+//     gyro_balance = _gyro;
+// }
+
+// angle loop
+int Control_Balance(float angle, float gyro)
+{
+    const float kp = 100, kd = 0.2;
+    float bias = angle;
+
+    return kp * bias + kd * gyro;
+}
+
+float v_intergral, v_bias;
+
+// velocity loop
+int Control_Velocity(int16_t encoder_left, int16_t encoder_right)
+{
+    const float kp = 15, ki = 0.3;
+
+    float encoder_both = encoder_left + encoder_right;
+
+    v_bias *= 0.8;
+    v_bias += encoder_both * 0.2;
+
+    v_intergral += v_bias;
+    v_intergral = constrain_float(v_intergral, -1000, 1000);
+
+    return v_bias * kp + v_intergral * ki;
+}
+
+void Control_ClearData(void)
+{
+    v_intergral = 0;
+    v_bias = 0;
+}
+
+void MPU6050_EXTICallBack(void)
+{
+    static bool sta = false;
+
+    MPU6050_ReadDMP();
+
+    sta = !sta;
+    if (sta)
+        return;
+
+    if (abs((int)angle_balance) > 40)
+    {
+        Motor_Control(0, 0);
+        Control_ClearData();
+    }
+
+    int16_t balance_out = Control_Balance(angle_balance, gyro_balance);
+    int16_t velocity_out = Control_Velocity(Motor_EncoderReadLeft(), Motor_EncoderReadRight());
+
+    Motor_Control(balance_out + velocity_out, 0);
+
+    printf("Angle:%5.1f\tGyro:%5.1f\tBalance:%5d\tVelocity:%5d\r\n", angle_balance, gyro_balance, balance_out, velocity_out);
+    // printf("Pitch:%5.1f\tRoll:%5.1f\tGyro:%5.1f\t\r\n", Pitch, Roll, _gyro);
 }

@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include "utils.h"
-
 #include "inv_mpu.h"
 #include "inv_mpu_dmp_motion_driver.h"
 
@@ -45,8 +44,8 @@ int main(void)
         // }
         // dir = !dir;
 
-        // LED_Toggle();
-        HAL_Delay(5);
+        LED_Toggle();
+        HAL_Delay(100);
         // printf("Encoder: L:%5d\tR:%5d\r\n", Motor_EncoderReadLeft(), Motor_EncoderReadRight());
     }
 }

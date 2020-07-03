@@ -57,33 +57,33 @@ void Motor_GPIOInit(void)
 
 void Motor_ControlLeftMotor(int16_t speed)
 {
-    GPIO_PinState state = (GPIO_PinState)(speed > 0);
+    bool state = (speed > 0);
     uint16_t abs_speed = (uint16_t)abs(speed);
 
     if (abs_speed > _MOTOR_PWM_MAX_)
         abs_speed = _MOTOR_PWM_MAX_;
 
     __HAL_TIM_SET_COMPARE(&TIM1_Handle, TIM_CHANNEL_1, abs_speed);
-    HAL_GPIO_WritePin(MOTOR_L_CTLA_PORT, MOTOR_L_CTLA_PIN, state);
+    HAL_GPIO_WritePin(MOTOR_L_CTLA_PORT, MOTOR_L_CTLA_PIN, (GPIO_PinState)state);
     HAL_GPIO_WritePin(MOTOR_L_CTLB_PORT, MOTOR_L_CTLB_PIN, (GPIO_PinState)!state);
 }
 
 void Motor_ControlRightMotor(int16_t speed)
 {
-    GPIO_PinState state = (GPIO_PinState)(speed > 0);
+    bool state = (speed > 0);
     uint16_t abs_speed = (uint16_t)abs(speed);
 
     if (abs_speed > _MOTOR_PWM_MAX_)
         abs_speed = _MOTOR_PWM_MAX_;
 
     __HAL_TIM_SET_COMPARE(&TIM1_Handle, TIM_CHANNEL_4, abs_speed);
-    HAL_GPIO_WritePin(MOTOR_R_CTLA_PORT, MOTOR_R_CTLA_PIN, state);
+    HAL_GPIO_WritePin(MOTOR_R_CTLA_PORT, MOTOR_R_CTLA_PIN, (GPIO_PinState)state);
     HAL_GPIO_WritePin(MOTOR_R_CTLB_PORT, MOTOR_R_CTLB_PIN, (GPIO_PinState)!state);
 }
 
 void Motor_PWMConfiguration(void)
 {
-    // TIM1 CH1-PA8, CH4-PA11, 15KHz, Fill range from 0 to 99.
+    // TIM1 CH1-PA8, CH4-PA11, 14.4KHz, Fill range from 0 to _MOTOR_PWM_MAX_.
     GPIO_InitTypeDef GPIO_InitStructure = {0};
     TIM_OC_InitTypeDef TIM_OCInitStructure = {0};
 
@@ -97,8 +97,8 @@ void Motor_PWMConfiguration(void)
     HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     TIM1_Handle.Instance = TIM1;
-    TIM1_Handle.Init.Prescaler = 48 - 1;
     TIM1_Handle.Init.Period = _MOTOR_PWM_MAX_ - 1;
+    TIM1_Handle.Init.Prescaler = 5 - 1;
     TIM1_Handle.Init.CounterMode = TIM_COUNTERMODE_UP;
     TIM1_Handle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     TIM1_Handle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;

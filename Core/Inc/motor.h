@@ -4,7 +4,7 @@
 #include "stm32f1xx_hal.h"
 #include <stdbool.h>
 
-#define _MOTOR_PWM_MAX_ 100
+#define _MOTOR_PWM_MAX_ 1000
 
 // Motor basic direction control
 void Motor_Init(void);

@@ -144,5 +144,6 @@ float MPU6050_GetGyroX(void);
 void MPU6050_DMPInit(void);
 void MPU6050_EXTIInit(void);
 void MPU6050_ReadDMP(void);
+void MPU6050_EXTICallBack(void);
 
 #endif // _MPU6050_H
