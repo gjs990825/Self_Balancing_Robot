@@ -371,6 +371,7 @@ void MPU6050_EXTICallBack(void)
     {
         Motor_Control(0, 0);
         Control_ClearData();
+        return;
     }
 
     int16_t balance_out = Control_Balance(angle_balance, gyro_balance);
@@ -379,5 +380,5 @@ void MPU6050_EXTICallBack(void)
     Motor_Control(balance_out + velocity_out, 0);
 
     printf("Angle:%5.1f\tGyro:%5.1f\tBalance:%5d\tVelocity:%5d\r\n", angle_balance, gyro_balance, balance_out, velocity_out);
-    // printf("Pitch:%5.1f\tRoll:%5.1f\tGyro:%5.1f\t\r\n", Pitch, Roll, _gyro);
+
 }
