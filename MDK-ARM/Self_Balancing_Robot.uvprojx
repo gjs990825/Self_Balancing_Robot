@@ -443,14 +443,14 @@
               <FilePath>..\Core\Src\mpu6050.c</FilePath>
             </File>
             <File>
-              <FileName>kalman_filter.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\kalman_filter.c</FilePath>
-            </File>
-            <File>
               <FileName>utils.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Core\Src\utils.c</FilePath>
+            </File>
+            <File>
+              <FileName>control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\control.c</FilePath>
             </File>
           </Files>
         </Group>

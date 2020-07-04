@@ -3,16 +3,10 @@
 
 #include "stm32f1xx_hal.h"
 #include <stdbool.h>
-#include "kalman_filter.h"
 
 
 extern const float kMPU6050AngleYZOffset;
 extern const float kMPU6050GyroXOffset;
-
-// extern kalman1_state kalman1AngleYZ;
-// extern kalman1_state kalman1GyroX;
-// extern kalman2_state kalman2AngleYZ;
-// extern kalman2_state kalman2GyroX;
 
 // MPU6050, 硬件I2c地址 0x68，模拟i2c地址0xD0   AD0高电平时地址为0x69 模拟IIC地址0xD2
 #define MPU6050_ADDRESS 0xD0 // 0x69
@@ -144,6 +138,7 @@ float MPU6050_GetGyroX(void);
 void MPU6050_DMPInit(void);
 void MPU6050_EXTIInit(void);
 void MPU6050_ReadDMP(void);
-void MPU6050_EXTICallBack(void);
+float MPU6050_GetAngle(void);
+int16_t MPU6050_GetGyro(void);
 
 #endif // _MPU6050_H

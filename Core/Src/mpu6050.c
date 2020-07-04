@@ -1,16 +1,12 @@
 #include "mpu6050.h"
 #include "debug.h"
-#include "kalman_filter.h"
 #include <stdio.h>
 #include <math.h>
 #include "inv_mpu.h"
 #include "inv_mpu_dmp_motion_driver.h"
-#include "led.h"
-#include "motor.h"
-#include "utils.h"
 #include <stdlib.h>
 
-const float kMPU6050AngleYZOffset = 2.34f;
+const float kMPU6050AngleYZOffset = -0.5f;
 const float kMPU6050GyroXOffset = -63.46f;
 
 I2C_HandleTypeDef I2C1_Handle;
@@ -91,12 +87,6 @@ int16_t MPU6050_GetData(uint8_t addr)
                      I2C_MEMADD_SIZE_8BIT, buf, 2, 10);
     return (int16_t)(buf[0] << 8 | buf[1]);
 }
-
-kalman1_state kalman1AngleYZ;
-kalman1_state kalman1GyroX;
-
-kalman2_state kalman2AngleYZ;
-kalman2_state kalman2GyroX;
 
 #define _MPU6050_DEBUG_FILTER_
 
@@ -237,8 +227,10 @@ void MPU6050_EXTIInit(void)
     EXTI_A1ConfigStruct.Mode = EXTI_MODE_INTERRUPT;
     EXTI_A1ConfigStruct.Trigger = EXTI_TRIGGER_FALLING;
     EXTI_A1ConfigStruct.GPIOSel = EXTI_GPIOA;
+	
+	extern void Control_MPUIntCallBack(void);
 
-    HAL_EXTI_RegisterCallback(&EXTI_A1HandleStruct, HAL_EXTI_COMMON_CB_ID, MPU6050_EXTICallBack);
+    HAL_EXTI_RegisterCallback(&EXTI_A1HandleStruct, HAL_EXTI_COMMON_CB_ID, Control_MPUIntCallBack);
     HAL_EXTI_SetConfigLine(&EXTI_A1HandleStruct, &EXTI_A1ConfigStruct);
 
     HAL_NVIC_SetPriority(EXTI1_IRQn, 2, 2);
@@ -269,6 +261,8 @@ EulerAngles_t ToEulerAngles(Quaternion_t q)
     double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
     angles.roll = atan2(sinr_cosp, cosr_cosp);
 
+#if 0 // unused rotation data
+
     // pitch (y-axis rotation)
     double sinp = 2 * (q.w * q.y - q.z * q.x);
     if (fabs(sinp) >= 1)
@@ -281,17 +275,20 @@ EulerAngles_t ToEulerAngles(Quaternion_t q)
     double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
     angles.yaw = atan2(siny_cosp, cosy_cosp);
 
+#endif
+
     return angles;
 }
 
-float angle_balance, gyro_balance;
+EulerAngles_t _angles;
+int16_t gyro[3];
 
 void MPU6050_ReadDMP(void)
 {
 #define q30 1073741824.0f
 
     Quaternion_t _quat;
-    short gyro[3], accel[3], sensors;
+    short accel[3], sensors; // gyro[3], 
     unsigned long sensor_timestamp;
     unsigned char more;
     long quat[4];
@@ -305,73 +302,16 @@ void MPU6050_ReadDMP(void)
         _quat.y = quat[2] / q30;
         _quat.z = quat[3] / q30;
 
-        EulerAngles_t angles = ToEulerAngles(_quat);
-
-        // printf("Roll:%5.1f\tPitch:%5.1f\tYaw:%5.1f\t\r\n",
-        //        angles.roll * RAD_TO_DEG,
-        //        angles.pitch * RAD_TO_DEG,
-        //        angles.yaw * RAD_TO_DEG);
-
-        angle_balance = -angles.roll * RAD_TO_DEG;
-        gyro_balance = -gyro[0];
+        _angles = ToEulerAngles(_quat);
     }
 }
 
-// angle loop
-int Control_Balance(float angle, float gyro)
+float MPU6050_GetAngle(void)
 {
-    const float kp = 100, kd = 0.2;
-    float bias = angle;
-
-    return kp * bias + kd * gyro;
+    return _angles.roll * RAD_TO_DEG;
 }
 
-float v_intergral, v_bias;
-
-// velocity loop
-int Control_Velocity(int16_t encoder_left, int16_t encoder_right)
+int16_t MPU6050_GetGyro(void)
 {
-    const float kp = 15, ki = 0.3;
-
-    float encoder_both = encoder_left + encoder_right;
-
-    v_bias *= 0.8;
-    v_bias += encoder_both * 0.2;
-
-    v_intergral += v_bias;
-    v_intergral = constrain_float(v_intergral, -1000, 1000);
-
-    return v_bias * kp + v_intergral * ki;
-}
-
-void Control_ClearData(void)
-{
-    v_intergral = 0;
-    v_bias = 0;
-}
-
-void MPU6050_EXTICallBack(void)
-{
-    static bool sta = false;
-
-    MPU6050_ReadDMP();
-
-    sta = !sta;
-    if (sta)
-        return;
-
-    if (abs((int)angle_balance) > 40)
-    {
-        Motor_Control(0, 0);
-        Control_ClearData();
-        return;
-    }
-
-    int16_t balance_out = Control_Balance(angle_balance, gyro_balance);
-    int16_t velocity_out = Control_Velocity(Motor_EncoderReadLeft(), Motor_EncoderReadRight());
-
-    Motor_Control(balance_out + velocity_out, 0);
-
-    printf("Angle:%5.1f\tGyro:%5.1f\tBalance:%5d\tVelocity:%5d\r\n", angle_balance, gyro_balance, balance_out, velocity_out);
-
+    return gyro[0];
 }
