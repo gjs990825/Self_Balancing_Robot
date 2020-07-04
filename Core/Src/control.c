@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+int16_t _turnning_speed = 0;
+int16_t _base_speed = 0;
+
 // angle loop
 int Control_Balance(float angle, float gyro)
 {
@@ -37,6 +40,9 @@ void Control_ClearData(void)
     v_bias = 0;
 }
 
+void Control_UpdateTurnningSpeed(int16_t speed) { _turnning_speed = speed; }
+void Control_UpdateBaseSpeed(int16_t speed) { _base_speed = speed; }
+
 void Control_MPUIntCallBack(void)
 {
     static bool sta = false;
@@ -61,7 +67,9 @@ void Control_MPUIntCallBack(void)
     int16_t balance_out = Control_Balance(angle_balance, gyro_balance);
     int16_t velocity_out = Control_Velocity(Motor_EncoderReadLeft(), Motor_EncoderReadRight());
 
-    Motor_Control(-balance_out + velocity_out, 0);
+    int16_t final_out = -balance_out + velocity_out;
+
+    Motor_Control(_base_speed + final_out, _turnning_speed);
 
     printf("%5.1f\t%5.1f\t%5d\t%5d\r\n", angle_balance, gyro_balance, balance_out, velocity_out);
     // printf("Angle:%5.1f\tGyro:%5.1f\tBalance:%5d\tVelocity:%5d\r\n", angle_balance, gyro_balance, balance_out, velocity_out);
