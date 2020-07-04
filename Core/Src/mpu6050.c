@@ -317,13 +317,6 @@ void MPU6050_ReadDMP(void)
     }
 }
 
-// void MPU6050_GetAngle(void)
-// {
-//     MPU6050_ReadDMP();
-//     angle_balance = Pitch;
-//     gyro_balance = _gyro;
-// }
-
 // angle loop
 int Control_Balance(float angle, float gyro)
 {
