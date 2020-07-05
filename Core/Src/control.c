@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 int16_t _turnning_speed = 0;
-int16_t _base_speed = 0;
+int16_t _traget_speed = 0;
 
 // angle loop
 int Control_Balance(float angle, float gyro)
@@ -21,12 +21,12 @@ float v_intergral, v_bias;
 // velocity loop
 int Control_Velocity(int16_t encoder_left, int16_t encoder_right)
 {
-    const float kp = 15, ki = 0.3;
+    const float kp = 15, ki = 0.3, kEncoderRatio = 0.1;
 
-    float encoder_both = encoder_left + encoder_right;
+    float encoder_diff = (encoder_left + encoder_right) - _traget_speed * kEncoderRatio;
 
     v_bias *= 0.8;
-    v_bias += encoder_both * 0.2;
+    v_bias += encoder_diff * 0.2;
 
     v_intergral += v_bias;
     v_intergral = constrain_float(v_intergral, -1000, 2000);
@@ -41,7 +41,7 @@ void Control_ClearData(void)
 }
 
 void Control_UpdateTurnningSpeed(int16_t speed) { _turnning_speed = speed; }
-void Control_UpdateBaseSpeed(int16_t speed) { _base_speed = speed; }
+void Control_UpdateTargetSpeed(int16_t speed) { _traget_speed = speed; }
 
 void Control_MPUIntCallBack(void)
 {
@@ -69,8 +69,8 @@ void Control_MPUIntCallBack(void)
 
     int16_t final_out = -balance_out + velocity_out;
 
-    Motor_Control(_base_speed + final_out, _turnning_speed);
+    Motor_Control(final_out, _turnning_speed);
 
-    printf("%5.1f\t%5.1f\t%5d\t%5d\r\n", angle_balance, gyro_balance, balance_out, velocity_out);
+    // printf("%5.1f\t%5.1f\t%5d\t%5d\r\n", angle_balance, gyro_balance, balance_out, velocity_out);
     // printf("Angle:%5.1f\tGyro:%5.1f\tBalance:%5d\tVelocity:%5d\r\n", angle_balance, gyro_balance, balance_out, velocity_out);
 }

@@ -217,6 +217,8 @@ void MPU6050_EXTIInit(void)
     GPIO_InitTypeDef GPIO_InitStruct;
     EXTI_ConfigTypeDef EXTI_A1ConfigStruct;
 
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+
     GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Pin = GPIO_PIN_1;
