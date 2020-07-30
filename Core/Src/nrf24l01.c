@@ -1,5 +1,5 @@
 #include "nrf24l01.h"
-#include <stdio.h>
+#include "debug.h"
 #include <string.h>
 
 uint8_t TX_ADDRESS[TX_ADR_WIDTH] = {0xAA, 0xBB, 0xCC, 0x00, 0x01}; //本地地址
@@ -152,7 +152,7 @@ void NRF24L01_SPIInit(void)
 
 void NRF24L01_IRQCallBack(void)
 {
-    printf("NRF IRQ CallBack\r\n");
+    log_info("NRF IRQ CallBack\r\n");
 
     uint8_t status = NRF24L01_SPIReadReg(R_REGISTER + NRF24L01_STATUS);
 

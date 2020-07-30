@@ -1,6 +1,5 @@
 #include "mpu6050.h"
 #include "debug.h"
-#include <stdio.h>
 #include <math.h>
 #include "inv_mpu.h"
 #include "inv_mpu_dmp_motion_driver.h"
@@ -176,7 +175,7 @@ void run_self_test(void)
         accel[1] *= accel_sens;
         accel[2] *= accel_sens;
         dmp_set_accel_bias(accel);
-        printf("setting bias succesfully ......\r\n");
+        log_info("setting bias succesfully ......\r\n");
     }
 }
 
@@ -185,28 +184,28 @@ void MPU6050_DMPInit(void)
     if (!mpu_init(NULL))
     {
         if (!mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL))
-            printf("mpu_set_sensor complete ......\r\n");
+            log_info("mpu_set_sensor complete ......\r\n");
         if (!mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL))
-            printf("mpu_configure_fifo complete ......\r\n");
+            log_info("mpu_configure_fifo complete ......\r\n");
         if (!mpu_set_sample_rate(200)) // 200Hz
-            printf("mpu_set_sample_rate complete ......\r\n");
+            log_info("mpu_set_sample_rate complete ......\r\n");
         if (!dmp_load_motion_driver_firmware())
-            printf("dmp_load_motion_driver_firmware complete ......\r\n");
+            log_info("dmp_load_motion_driver_firmware complete ......\r\n");
         if (!dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_orientation)))
-            printf("dmp_set_orientation complete ......\r\n");
+            log_info("dmp_set_orientation complete ......\r\n");
         if (!dmp_enable_feature(DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_TAP |
                                 DMP_FEATURE_ANDROID_ORIENT | DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_CAL_GYRO |
                                 DMP_FEATURE_GYRO_CAL))
-            printf("dmp_enable_feature complete ......\r\n");
+            log_info("dmp_enable_feature complete ......\r\n");
         if (!dmp_set_fifo_rate(200)) // 200Hz
-            printf("dmp_set_fifo_rate complete ......\r\n");
+            log_info("dmp_set_fifo_rate complete ......\r\n");
         run_self_test();
         if (!mpu_set_dmp_state(1))
-            printf("mpu_set_dmp_state complete ......\r\n");
+            log_info("mpu_set_dmp_state complete ......\r\n");
     }
     else
     {
-        printf("mpu init failed\r\n");
+        log_error("mpu init failed\r\n");
     }
 }
 
@@ -230,9 +229,9 @@ void MPU6050_EXTIInit(void)
     EXTI_A1ConfigStruct.Trigger = EXTI_TRIGGER_FALLING;
     EXTI_A1ConfigStruct.GPIOSel = EXTI_GPIOA;
 	
-	extern void Control_MPUIntCallBack(void);
+	extern void Control_MPUInterruptCallBack(void);
 
-    HAL_EXTI_RegisterCallback(&EXTI_A1HandleStruct, HAL_EXTI_COMMON_CB_ID, Control_MPUIntCallBack);
+    HAL_EXTI_RegisterCallback(&EXTI_A1HandleStruct, HAL_EXTI_COMMON_CB_ID, Control_MPUInterruptCallBack);
     HAL_EXTI_SetConfigLine(&EXTI_A1HandleStruct, &EXTI_A1ConfigStruct);
 
     HAL_NVIC_SetPriority(EXTI1_IRQn, 2, 2);

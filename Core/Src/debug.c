@@ -1,5 +1,4 @@
 #include "debug.h"
-#include <stdio.h>
 #include "stm32f1xx_hal.h"
 #include "led.h"
 
@@ -12,7 +11,7 @@ void Error_Handler(void)
     /* USER CODE BEGIN Error_Handler_Debug */
     /* User can add his own implementation to report the HAL error return state */
 
-    printf("\r\nError!\r\n");
+    log_error("System error!\r\n");
     for (;;)
     {
         LED_Toggle();
@@ -31,7 +30,7 @@ void Error_Handler(void)
   */
 void assert_failed(unsigned char *file, unsigned int line)
 {
-    printf("Wrong parameters value: file %s on line %d\r\n", file, line);
+    log_error("Wrong parameters value: file %s on line %d\r\n", file, line);
     for (;;)
     {
         LED_Toggle();

@@ -105,6 +105,7 @@ static inline int reg_int_cb(struct int_param_s *int_param)
 
 #include "stm32f1xx_hal.h"
 #include "mpu6050.h"
+#include "debug.h"
 
 #define delay_ms HAL_Delay
 #define get_ms(x) (*x) = HAL_GetTick()
@@ -121,8 +122,8 @@ void reg_int_cb(struct int_param_s *int_param)
 
 #define labs        abs
 #define fabs(x)     (((x)>0)?(x):-(x))
-#define log_i printf
-#define log_e printf
+#define log_i log_info
+#define log_e log_error
 
 int min(int a, int b)
 {

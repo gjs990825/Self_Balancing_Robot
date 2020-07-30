@@ -2,7 +2,7 @@
 #include "mpu6050.h"
 #include "utils.h"
 #include "motor.h"
-#include <stdio.h>
+#include "debug.h"
 #include <stdlib.h>
 
 int16_t _turnning_speed = 0;
@@ -16,6 +16,7 @@ int Control_Balance(float angle, float gyro)
     return kp * angle + kd * gyro;
 }
 
+const int k_v_intergral_limit = 1000;
 float v_intergral, v_bias;
 
 // velocity loop
@@ -29,12 +30,12 @@ int Control_Velocity(int16_t encoder_left, int16_t encoder_right)
     v_bias += encoder_diff * 0.2;
 
     v_intergral += v_bias;
-    v_intergral = constrain_float(v_intergral, -1000, 2000);
+    v_intergral = constrain_float(v_intergral, -k_v_intergral_limit, k_v_intergral_limit);
 
     return v_bias * kp + v_intergral * ki;
 }
 
-void Control_ClearData(void)
+void Control_ResetPIDData(void)
 {
     v_intergral = 0;
     v_bias = 0;
@@ -43,7 +44,7 @@ void Control_ClearData(void)
 void Control_UpdateTurnningSpeed(int16_t speed) { _turnning_speed = speed; }
 void Control_UpdateTargetSpeed(int16_t speed) { _traget_speed = speed; }
 
-void Control_MPUIntCallBack(void)
+void Control_MPUInterruptCallBack(void)
 {
     static bool sta = false;
 
@@ -58,7 +59,7 @@ void Control_MPUIntCallBack(void)
     if (abs((int)angle_balance) > 35)
     {
         Motor_Control(0, 0);
-        Control_ClearData();
+        Control_ResetPIDData();
         return;
     }
 
@@ -71,6 +72,6 @@ void Control_MPUIntCallBack(void)
 
     Motor_Control(final_out, _turnning_speed);
 
-    // printf("%5.1f\t%5.1f\t%5d\t%5d\r\n", angle_balance, gyro_balance, balance_out, velocity_out);
-    // printf("Angle:%5.1f\tGyro:%5.1f\tBalance:%5d\tVelocity:%5d\r\n", angle_balance, gyro_balance, balance_out, velocity_out);
+    // log_info("%5.1f\t%5.1f\t%5d\t%5d\r\n", angle_balance, gyro_balance, balance_out, velocity_out);
+    // log_info("Angle:%5.1f\tGyro:%5.1f\tBalance:%5d\tVelocity:%5d\r\n", angle_balance, gyro_balance, balance_out, velocity_out);
 }

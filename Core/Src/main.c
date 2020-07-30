@@ -24,7 +24,7 @@ int main(void)
 
     // NRF24L01 module for wireless control
     NRF24L01_Init();
-    printf("%s\r\n", NRF24L01_Check() ? "NRF OK" : "NRF FAIL");
+    log_info("NRF %s\r\n", NRF24L01_Check() ? "OK" : "ERROR");
 
     // Delay for MPU6050 to start up
     HAL_Delay(300);
@@ -33,7 +33,7 @@ int main(void)
     MPU6050_DMPInit();
     MPU6050_EXTIInit();
 
-    printf("System Setup Finished\r\nRunning now...\r\n");
+    log_info("System Setup Finished\r\nRunning now...\r\n");
 
     for (;;)
     {
