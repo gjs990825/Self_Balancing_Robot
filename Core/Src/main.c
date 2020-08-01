@@ -6,7 +6,6 @@
 #include "control.h"
 #include "nrf24l01.h"
 #include "motor.h"
-#include "utils.h"
 #include "communication.h"
 
 void SystemClock_Config(void);

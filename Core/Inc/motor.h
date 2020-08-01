@@ -6,11 +6,13 @@
 
 #define _MOTOR_PWM_MAX_ 1000
 
+#define Motor_ShutDown() Motor_Control(0, 0)
+
 // Motor basic direction control
 void Motor_Init(void);
 void Motor_GPIOInit(void);
-void Motor_ControlLeftMotor(int16_t speed);
-void Motor_ControlRightMotor(int16_t speed);
+void Motor_SetLeftMotorSpeed(int16_t speed);
+void Motor_SetRightMotorSpeed(int16_t speed);
 
 // Motor speed control
 void Motor_PWMConfiguration(void);
@@ -22,5 +24,6 @@ int16_t Motor_GetTurnningSpeed(void);
 void Motor_EncoderInit(void);
 int16_t Motor_EncoderReadLeft(void);
 int16_t Motor_EncoderReadRight(void);
+int Motor_GetSpeed(void);
 
 #endif // _MOTOR_H_

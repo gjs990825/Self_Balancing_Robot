@@ -18,13 +18,13 @@ void Communication_CheckMessage(void)
         {
             int turnning = Communication_GetRemoteTurnning();
             int speed = Communication_GetRemoteSpeed();
-            log_info("S:%d\tT:%d\t", speed, turnning);
+            // log_info("S:%d\tT:%d\t", speed, turnning);
 
             speed = map(speed, 0, 4096, -_SPEED_MAX_VAL_, _SPEED_MAX_VAL_);
             turnning = map(4096 - turnning, 0, 4096, -_TURNNING_MAX_VAL_, _TURNNING_MAX_VAL_);
-            log_info("s:%d\tt:%d\t%d\t\r\n", speed, turnning, HAL_GetTick());
+            // log_info("s:%d\tt:%d\t%d\t\r\n", speed, turnning, HAL_GetTick());
 
-            Control_UpdateTargetSpeed(speed);
+            Control_UpdateMoveSpeed(speed);
             Control_UpdateTurnningSpeed(turnning);
 
             NRF24L01_ClearRX();
@@ -33,7 +33,7 @@ void Communication_CheckMessage(void)
     }
     else if (HAL_GetTick() - tick > _CONTROL_TIME_OUT_)
     {
-        Control_UpdateTargetSpeed(0);
+        Control_UpdateMoveSpeed(0);
         Control_UpdateTurnningSpeed(0);
     }
 }

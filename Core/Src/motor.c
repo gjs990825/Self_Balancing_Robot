@@ -55,7 +55,7 @@ void Motor_GPIOInit(void)
     HAL_GPIO_Init(MOTOR_R_CTLB_PORT, &GPIO_InitStructure);
 }
 
-void Motor_ControlLeftMotor(int16_t speed)
+void Motor_SetLeftMotorSpeed(int16_t speed)
 {
     bool state = (speed > 0);
     uint16_t abs_speed = (uint16_t)abs(speed);
@@ -68,7 +68,7 @@ void Motor_ControlLeftMotor(int16_t speed)
     HAL_GPIO_WritePin(MOTOR_L_CTLB_PORT, MOTOR_L_CTLB_PIN, (GPIO_PinState)!state);
 }
 
-void Motor_ControlRightMotor(int16_t speed)
+void Motor_SetRightMotorSpeed(int16_t speed)
 {
     bool state = (speed > 0);
     uint16_t abs_speed = (uint16_t)abs(speed);
@@ -123,8 +123,8 @@ void Motor_Control(int16_t base_speed, int16_t turnning_speed)
     base_speed_ = base_speed;
     turnning_speed_ = turnning_speed;
 
-    Motor_ControlLeftMotor(base_speed_ + turnning_speed_);
-    Motor_ControlRightMotor(base_speed_ - turnning_speed_);
+    Motor_SetLeftMotorSpeed(base_speed_ + turnning_speed_);
+    Motor_SetRightMotorSpeed(base_speed_ - turnning_speed_);
 }
 
 int16_t Motor_GetBaseSpeed(void) { return base_speed_; }
@@ -213,4 +213,9 @@ int16_t Motor_EncoderReadRight(void)
     int16_t val = (int16_t)__HAL_TIM_GET_COUNTER(&TIM2_Handle);
     __HAL_TIM_SET_COUNTER(&TIM2_Handle, 0);
     return val;
+}
+
+int Motor_GetSpeed(void)
+{
+    return Motor_EncoderReadLeft() + Motor_EncoderReadRight();
 }
