@@ -6,7 +6,7 @@
 #include "stm32f1xx_hal.h"
 
 // Choosing debug output
-// #define _ENABLE_DEBUG_INFO_OUTPUT_
+#define _ENABLE_DEBUG_INFO_OUTPUT_
 #define _ENABLE_DEBUG_ERROR_OUTPUT_
 
 #if defined(_ENABLE_DEBUG_INFO_OUTPUT_)

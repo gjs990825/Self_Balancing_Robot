@@ -5,10 +5,13 @@
 #include "debug.h"
 #include <stdlib.h>
 
-int16_t _turnning_speed = 0;
-int16_t _traget_speed = 0;
+// the target speed
+int _target_turnning_speed = 0;
+int _target_move_speed = 0;
+// the output speed (instant updated smoothed speed)
+int _smoothed_move_speed = 0;
 
-// angle loop
+// angle loop for balancing
 int Control_Balance(float angle, float gyro)
 {
     const float kp = 110, kd = 0.2;
@@ -19,15 +22,14 @@ int Control_Balance(float angle, float gyro)
 const int k_v_intergral_limit = 1000;
 float v_intergral, v_bias;
 
-// velocity loop
-int Control_Velocity(int16_t encoder_left, int16_t encoder_right)
+// velocity loop for staying still
+int Control_Velocity(int current_speed)
 {
-    const float kp = 15, ki = 0.3, kEncoderRatio = 0.1;
-
-    float encoder_diff = (encoder_left + encoder_right) - _traget_speed * kEncoderRatio;
+    const float kp = 15, ki = 0.3;
+    const float k_speed_ratio = 0.1;
 
     v_bias *= 0.8;
-    v_bias += encoder_diff * 0.2;
+    v_bias += (current_speed - (_smoothed_move_speed * k_speed_ratio)) * 0.2;
 
     v_intergral += v_bias;
     v_intergral = constrain_float(v_intergral, -k_v_intergral_limit, k_v_intergral_limit);
@@ -41,12 +43,36 @@ void Control_ResetPIDData(void)
     v_bias = 0;
 }
 
-void Control_UpdateTurnningSpeed(int16_t speed) { _turnning_speed = speed; }
-void Control_UpdateTargetSpeed(int16_t speed) { _traget_speed = speed; }
+void Control_UpdateTurnningSpeed(int16_t speed) { _target_turnning_speed = speed; }
+void Control_UpdateMoveSpeed(int16_t speed) { _target_move_speed = speed; }
+
+void Control_EnterIdleState(void)
+{
+    Control_UpdateMoveSpeed(0);
+    Control_UpdateTurnningSpeed(0);
+}
+
+// Speed smooth control for better stability
+
+void Control_SmoothMoveSpeed(void)
+{
+    const float kp = 0.3, kd = 0.0;
+    static int bias = 0;
+
+    bias = _target_move_speed - _smoothed_move_speed;
+
+    int derivative = 0; // do it later
+
+    _smoothed_move_speed += kp * bias + kd * derivative;
+
+    // log_info("T:%d O:%d B:%d\r\n", _target_move_speed, _smoothed_move_speed, bias);
+}
 
 void Control_MPUInterruptCallBack(void)
 {
     static bool sta = false;
+    static bool fail_flag = false;
+    static uint32_t manual_standup_time = 0;
 
     MPU6050_ReadDMP();
 
@@ -54,24 +80,37 @@ void Control_MPUInterruptCallBack(void)
     if (sta)
         return;
 
-    float angle_balance = MPU6050_GetAngle();
+    float angle = MPU6050_GetAngle();
 
-    if (abs((int)angle_balance) > 35)
+    if (abs((int)angle) > _MAX_ANGLE_)
     {
-        Motor_Control(0, 0);
-        Control_ResetPIDData();
+        if (!fail_flag)
+        {
+            fail_flag = true;
+            Motor_ShutDown();
+            Control_ResetPIDData();
+        }
         return;
     }
+    else if (fail_flag)
+    {
+        fail_flag = false;
+        manual_standup_time = HAL_GetTick();
+    }
 
-    float gyro_balance = MPU6050_GetGyro();
+    if (HAL_GetTick() - _RE_STANDUP_DELAY_ < manual_standup_time)
+        return;
 
-    int16_t balance_out = Control_Balance(angle_balance, gyro_balance);
-    int16_t velocity_out = Control_Velocity(Motor_EncoderReadLeft(), Motor_EncoderReadRight());
 
-    int16_t final_out = -balance_out + velocity_out;
+    Control_SmoothMoveSpeed();
 
-    Motor_Control(final_out, _turnning_speed);
+    int balance_out = Control_Balance(angle, MPU6050_GetGyro());
+    int speed_out = Control_Velocity(Motor_GetSpeed());
 
-    // log_info("%5.1f\t%5.1f\t%5d\t%5d\r\n", angle_balance, gyro_balance, balance_out, velocity_out);
-    // log_info("Angle:%5.1f\tGyro:%5.1f\tBalance:%5d\tVelocity:%5d\r\n", angle_balance, gyro_balance, balance_out, velocity_out);
+    int combined_out = -balance_out + speed_out;
+
+    Motor_Control(combined_out, _target_turnning_speed);
+
+    // log_info("%5.1f\t%5.1f\t%5d\t%5d\r\n", angle, gyro, balance_out, velocity_out);
+    // log_info("Angle:%5.1f\tGyro:%5.1f\tBalance:%5d\tVelocity:%5d\r\n", angle, gyro, balance_out, velocity_out);
 }

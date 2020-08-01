@@ -8,6 +8,9 @@
 // it whill enter idle state(standing still, do nothing)
 #define _CONTROL_TIME_OUT_ 600
 
+// message data length
+#define _MESSAGE_DATA_LENTH_ 10
+
 // Check data from remote controler and process instructions
 void Communication_CheckMessage(void);
 

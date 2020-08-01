@@ -16,18 +16,19 @@ int main(void)
     HAL_Init();
     SystemClock_Config();
 
-    // Basic debug setup
+    // Basic debug tool setup
     USART1_UARTInit();
     LED_GPIOInit();
     Motor_Init();
 
-    // NRF24L01 module for wireless control
-    NRF24L01_Init();
-    log_info("NRF %s\r\n", NRF24L01_Check() ? "OK" : "ERROR");
-
-    // Delay for MPU6050 to start up
+    // Delay for external modules to start up
     HAL_Delay(300);
 
+    // NRF24L01 module for wireless control
+    NRF24L01_Init();
+    log_info("NRF24L01 Module %s\r\n", NRF24L01_Check() ? "OK" : "ERROR");
+
+    // MP6050 module for motion detection
     MPU6050_Init();
     MPU6050_DMPInit();
     MPU6050_EXTIInit();

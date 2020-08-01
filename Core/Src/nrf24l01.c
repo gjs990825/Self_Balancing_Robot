@@ -152,8 +152,6 @@ void NRF24L01_SPIInit(void)
 
 void NRF24L01_IRQCallBack(void)
 {
-    log_info("NRF IRQ CallBack\r\n");
-
     uint8_t status = NRF24L01_SPIReadReg(R_REGISTER + NRF24L01_STATUS);
 
     if (status & (1 << RX_DR)) //接收中断
