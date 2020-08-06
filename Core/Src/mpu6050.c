@@ -145,6 +145,16 @@ uint8_t inv_row_2_scale(const int8_t *row)
 uint16_t inv_orientation_matrix_to_scalar(const int8_t *mtx)
 {
     unsigned short scalar;
+
+    /*
+       XYZ  010_001_000 Identity Matrix
+       XZY  001_010_000
+       YXZ  010_000_001
+       YZX  000_010_001
+       ZXY  001_000_010
+       ZYX  000_001_010
+     */
+
     scalar = inv_row_2_scale(mtx);
     scalar |= inv_row_2_scale(mtx + 3) << 3;
     scalar |= inv_row_2_scale(mtx + 6) << 6;
@@ -228,8 +238,8 @@ void MPU6050_EXTIInit(void)
     EXTI_A1ConfigStruct.Mode = EXTI_MODE_INTERRUPT;
     EXTI_A1ConfigStruct.Trigger = EXTI_TRIGGER_FALLING;
     EXTI_A1ConfigStruct.GPIOSel = EXTI_GPIOA;
-	
-	extern void Control_MPUInterruptCallBack(void);
+
+    extern void Control_MPUInterruptCallBack(void);
 
     HAL_EXTI_RegisterCallback(&EXTI_A1HandleStruct, HAL_EXTI_COMMON_CB_ID, Control_MPUInterruptCallBack);
     HAL_EXTI_SetConfigLine(&EXTI_A1HandleStruct, &EXTI_A1ConfigStruct);
@@ -289,7 +299,7 @@ void MPU6050_ReadDMP(void)
 #define q30 1073741824.0f
 
     Quaternion_t _quat;
-    short accel[3], sensors; // gyro[3], 
+    short accel[3], sensors; // gyro[3],
     unsigned long sensor_timestamp;
     unsigned char more;
     long quat[4];

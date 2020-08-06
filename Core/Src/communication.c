@@ -28,7 +28,7 @@ bool Communication_MessagePending(void)
         if (NRF_RxBuf[_MESSAGE_DATA_LENTH_ - 1] == Communication_MessageChecksum(NRF_RxBuf))
         {
             LED_Toggle();
-            // log_info("R\r\n");
+            // log_info("Message Received\r\n");
             return true;
         }
         else
@@ -52,8 +52,8 @@ void Communication_CheckMessage(void)
             int speed = Communication_GetRemoteSpeed();
             // log_info("S:%d\tT:%d\t", speed, turnning);
 
-            speed = map(speed, 0, 4096, -_SPEED_MAX_VAL_, _SPEED_MAX_VAL_);
-            turnning = map(4096 - turnning, 0, 4096, -_TURNNING_MAX_VAL_, _TURNNING_MAX_VAL_);
+            speed = map(speed, 0, 4096, -_CONTROL_MAX_SPEED_, _CONTROL_MAX_SPEED_);
+            turnning = map(4096 - turnning, 0, 4096, -_CONTROL_MAX_TURNNING_, _CONTROL_MAX_TURNNING_);
             // log_info("s:%d\tt:%d\t%d\t\r\n", speed, turnning, HAL_GetTick());
 
             Control_UpdateMoveSpeed(speed);

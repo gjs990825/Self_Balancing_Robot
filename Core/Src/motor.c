@@ -118,9 +118,9 @@ void Motor_PWMConfiguration(void)
     HAL_TIM_PWM_Start(&TIM1_Handle, TIM_CHANNEL_4);
 }
 
-void Motor_Control(int16_t base_speed, int16_t turnning_speed)
+void Motor_Control(int16_t move_speed, int16_t turnning_speed)
 {
-    base_speed_ = base_speed;
+    base_speed_ = move_speed;
     turnning_speed_ = turnning_speed;
 
     Motor_SetLeftMotorSpeed(base_speed_ + turnning_speed_);
@@ -215,7 +215,12 @@ int16_t Motor_EncoderReadRight(void)
     return val;
 }
 
-int Motor_GetSpeed(void)
+int16_t Motor_GetEncoder(void)
 {
-    return Motor_EncoderReadLeft() + Motor_EncoderReadRight();
+    return (Motor_EncoderReadLeft() + Motor_EncoderReadRight());
+}
+
+float Motor_GetSpeed(void)
+{
+    return Motor_GetEncoder() * _MOTOR_SPEED_ENCODER_RATICIAL;
 }

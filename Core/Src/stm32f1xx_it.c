@@ -23,6 +23,8 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "debug.h"
+#include "motor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -32,7 +34,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
- 
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -62,7 +64,7 @@
 /* USER CODE END EV */
 
 /******************************************************************************/
-/*           Cortex-M3 Processor Interruption and Exception Handlers          */ 
+/*           Cortex-M3 Processor Interruption and Exception Handlers          */
 /******************************************************************************/
 /**
   * @brief This function handles Non maskable interrupt.
@@ -84,10 +86,16 @@ void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
 
+  Motor_ShutDown();
+
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
   {
     /* USER CODE BEGIN W1_HardFault_IRQn 0 */
+
+    log_error("Hard fault occurred!\r\n");
+    LED_BlinkSequence(_system_fault_blink_sequence);
+
     /* USER CODE END W1_HardFault_IRQn 0 */
   }
 }
@@ -99,10 +107,16 @@ void MemManage_Handler(void)
 {
   /* USER CODE BEGIN MemoryManagement_IRQn 0 */
 
+  Motor_ShutDown();
+
   /* USER CODE END MemoryManagement_IRQn 0 */
   while (1)
   {
     /* USER CODE BEGIN W1_MemoryManagement_IRQn 0 */
+
+    log_error("Memory mangement fault occurred!\r\n");
+    LED_BlinkSequence(_system_fault_blink_sequence);
+
     /* USER CODE END W1_MemoryManagement_IRQn 0 */
   }
 }
@@ -114,10 +128,16 @@ void BusFault_Handler(void)
 {
   /* USER CODE BEGIN BusFault_IRQn 0 */
 
+  Motor_ShutDown();
+
   /* USER CODE END BusFault_IRQn 0 */
   while (1)
   {
     /* USER CODE BEGIN W1_BusFault_IRQn 0 */
+
+    log_error("Bus (prefetch / memory access) fault occurred!\r\n");
+    LED_BlinkSequence(_system_fault_blink_sequence);
+
     /* USER CODE END W1_BusFault_IRQn 0 */
   }
 }
@@ -129,10 +149,16 @@ void UsageFault_Handler(void)
 {
   /* USER CODE BEGIN UsageFault_IRQn 0 */
 
+  Motor_ShutDown();
+
   /* USER CODE END UsageFault_IRQn 0 */
   while (1)
   {
     /* USER CODE BEGIN W1_UsageFault_IRQn 0 */
+
+    log_error("Undefined instruction or illegal state!\r\n");
+    LED_BlinkSequence(_system_fault_blink_sequence);
+    
     /* USER CODE END W1_UsageFault_IRQn 0 */
   }
 }
@@ -187,7 +213,7 @@ void PendSV_Handler(void)
 
 void SysTick_Handler()
 {
-	HAL_IncTick();
+  HAL_IncTick();
 }
 
 /* USER CODE END 1 */

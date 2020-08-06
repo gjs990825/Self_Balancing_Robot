@@ -200,7 +200,7 @@ void NRF24L01_IRQInit(void)
     HAL_EXTI_RegisterCallback(&EXTI_B0HandleStruct, HAL_EXTI_COMMON_CB_ID, NRF24L01_IRQCallBack);
     HAL_EXTI_SetConfigLine(&EXTI_B0HandleStruct, &EXTI_B0ConfigStruct);
 
-    HAL_NVIC_SetPriority(EXTI0_IRQn, 3, 0);
+    HAL_NVIC_SetPriority(EXTI0_IRQn, 2, 3);
     HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 }
 
